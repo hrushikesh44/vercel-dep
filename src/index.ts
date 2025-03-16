@@ -5,6 +5,9 @@ import { buildProject } from "./build";
 const subscriber = createClient();
 subscriber.connect();
 
+const publisher = createClient();
+publisher.connect();
+
 async function main() {
     while(1){
         const response = await subscriber.brPop(commandOptions({
@@ -17,7 +20,8 @@ async function main() {
      const id = response.element;
      await downloadS3Folder(`output/${id}`);
      await buildProject(id);
-     await copyFinalDist(id);
+     copyFinalDist(id);
+     publisher.hSet('status', id, 'deployed')
     }
 }
 
